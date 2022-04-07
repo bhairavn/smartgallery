@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "smartgallery",
+    "slug": "smartgallery",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "smartgallery"
+}
