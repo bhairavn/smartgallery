@@ -4,15 +4,23 @@ import { StyleSheet, Text, View , SafeAreaView} from 'react-native';
 import GlobalProvider from './src/context/Provider';
 import AppNavContainer from './src/navigations';
 // import LoginScreen from './screens/LoginScreen';
-
-
+import { ImageBrowser } from 'expo-image-picker-multiple';
 
 export default function App() {
 
   return (
-    <GlobalProvider>
-    <AppNavContainer/>
-    </GlobalProvider>
+    // <GlobalProvider>
+    // <AppNavContainer/>
+    // </GlobalProvider>
+<ImageBrowser
+  max={4}
+  onChange={(num, onSubmit)  => {
+    
+  }}
+  callback={(callback) => {
+
+  }}
+/>
   );
 }
 
