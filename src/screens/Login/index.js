@@ -29,7 +29,7 @@ const Login =() =>{
     };
   
   return(
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <LoginComponent
          onSubmit={onSubmit}
          onChange={onChange}
@@ -37,9 +37,8 @@ const Login =() =>{
          error={error}
          loading={loading}
         />
-          {/* <Text>hi from Login</Text> */}
       </KeyboardAvoidingView>
-  )
+  );
 };
 
 

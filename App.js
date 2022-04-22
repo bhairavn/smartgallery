@@ -9,19 +9,11 @@ import { ImageBrowser } from 'expo-image-picker-multiple';
 export default function App() {
 
   return (
-    // <GlobalProvider>
-    // <AppNavContainer/>
-    // </GlobalProvider>
-<ImageBrowser
-  max={4}
-  onChange={(num, onSubmit)  => {
-    
-  }}
-  callback={(callback) => {
+    <GlobalProvider>
+    <AppNavContainer/>
+    </GlobalProvider>
 
-  }}
-/>
-  );
+  ); 
 }
 
 const styles = StyleSheet.create({

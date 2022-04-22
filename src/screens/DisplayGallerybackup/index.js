@@ -10,7 +10,6 @@ import {
   Image,
 } from 'react-native';
 import { ImageBrowser } from 'expo-image-picker-multiple';
-import SearchbarComponent from '../../components/Searchbar/Index';
 
 
 const DisplayGallery = () => {
@@ -36,7 +35,6 @@ const DisplayGallery = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-     <SearchbarComponent/>
        {modalVisibleStatus ? (
         <Modal
           transparent={false}
