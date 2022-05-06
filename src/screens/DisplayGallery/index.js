@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { ImageBrowser } from 'expo-image-picker-multiple';
 import SearchbarComponent from '../../components/Searchbar/Index';
-
+import ImageGallery from '../Settings/ImageGallery';
 
 const DisplayGallery = () => {
   const [imageuri, setImageuri] = useState('');
@@ -34,9 +34,13 @@ const DisplayGallery = () => {
     setModalVisibleStatus(visible);
   };
 
+
+
+  
+
   return (
     <SafeAreaView style={styles.container}>
-     <SearchbarComponent/>
+     {/* <SearchbarComponent/>
        {modalVisibleStatus ? (
         <Modal
           transparent={false}
@@ -95,19 +99,10 @@ const DisplayGallery = () => {
           />
         </View>
       )}
-       
-       
-        
-     { /* <ImageBrowser
-  max={4}
-  onChange={(num, onSubmit)  => {
-    
-  }}
-  callback={(callback) => {
-
-  }}
-/>*/}
-
+        */}
+       <ImageGallery  onChange={()=>{}}
+      callback={()=>{}}
+      />
    </SafeAreaView>
   );
 };

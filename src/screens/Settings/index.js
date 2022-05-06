@@ -7,33 +7,63 @@ import Modal from "react-native-modal";
 import { ImageBrowser } from "expo-image-picker-multiple";
 import { StyleSheet } from "react-native";
 import { launchImageLibraryAsync } from "expo-image-picker-multiple";
+import ImageBrowserScreen from "./ImageBrowserScreen";
 
 const Settings = () => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [chosenAssets, setChosenAssets] = useState([]);
-  
-
-  const imagesCallback = (callback) => {
-    callback
-      .then((photos) => {
-          console.log(photos);
-        setChosenAssets(photos);
-      })
-      .catch((e) => console.log(e));
-  };
-
-  console.log(chosenAssets)
-  
-  const updateHandler = (count, onSubmit) => {
-    console.log(`count: ${count}  ::  onSubmit: ${JSON.stringify(onSubmit)}`);
-  };
-
-  const renderSelectedComponent = (number) => (
-    <View style={styles.countBadge}>
-      <Text style={styles.countBadgeText}>{number}</Text>
-    </View>
+  _getHeaderLoader = () => (
+    <ActivityIndicator size='small' color={'#ffffff'}/>
   );
 
+  const imagesCallback = (callback) => {
+    console.log("hello2");
+
+    callback.then(async (photos) => {
+      console.log(photos);
+
+      const cPhotos = [];
+      for(let photo of photos) {
+        const pPhoto = await _processImageAsync(photo.uri);
+        cPhotos.push({
+          uri: pPhoto.uri,
+          name: photo.filename,
+          type: 'image/jpg'
+        })
+      }
+    })
+    .catch((e) => console.log(e));
+  };
+
+  async function _processImageAsync(uri) {
+    const file = await ImageManipulator.manipulateAsync(
+      uri,
+      [{resize: { width: 1000 }}],
+      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    return file;
+  };
+
+  // _renderDoneButton = (count, onSubmit) => {
+  //   if (!count) return null;
+  //   return <TouchableOpacity title={'Done'} onPress={onSubmit}>
+  //     <Text onPress={onSubmit}>Done</Text>
+  //   </TouchableOpacity>
+  // }
+
+
+  // updateHandler = (count, onSubmit) => {
+  //   callback.setOptions({
+  //     title: `Selected ${count} files`,
+  //     headerRight: () => _renderDoneButton(count, onSubmit)
+  //   });
+  // };
+
+  const updateHandler = (count, onSubmit) => {
+    console.log(callback.then(async (photos)))
+    console.log(`count: ${count}  ::  onSubmit: ${JSON.stringify(onSubmit)}`);
+  };
+  
   const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
   const noCameraPermissionComponent = (
     <Text style={styles.emptyStay}>No access to camera</Text>
@@ -47,6 +77,13 @@ const Settings = () => {
       </View>
     );
   };
+
+  renderSelectedComponent = (number) => (
+    <View style={styles.countBadge}>
+      <Text style={styles.countBadgeText}>{number}</Text>
+    </View>
+  );
+
 
   const AssetInfo = ({ assetInfo }) => {
     //
@@ -84,15 +121,26 @@ const Settings = () => {
 
       <Modal isVisible={isModalVisible}>
         <View style={{ flex: 1,paddingHorizontal: 25 }}>
-          <ImageBrowser
+           {/* <ImageBrowser
             max={10000}
             onChange={updateHandler}
-        callback={imagesCallback}
+        callback={(callback) => {
+console.log(callback);
+        }}
         renderSelectedComponent={renderSelectedComponent}
-        emptyStayComponent={emptyStayComponent}
-        noCameraPermissionComponent={noCameraPermissionComponent}
+        // emptyStayComponent={emptyStayComponent}
+          /> */}
+ {/* <ImageBrowser
+          max={4}
+          onChange={updateHandler}
+          callback={imagesCallback}
+          renderSelectedComponent={renderSelectedComponent}
+          emptyStayComponent={emptyStayComponent}
+        /> */}
 
-          />
+        <ImageBrowserScreen/>
+
+
           <View style={{ flexDirection: "row" }}>
             <View style={{flex:1, paddingHorizontal: 20 }}>
               <CustomButton title="Hide modal" primary onPress={toggleModal} />
