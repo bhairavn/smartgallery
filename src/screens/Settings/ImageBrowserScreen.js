@@ -65,7 +65,7 @@ export default class ImageBrowserScreen extends Component {
     return (
       <View style={[styles.flex, styles.container]}>
         
-        <ImageGallery
+        <ImageBrowser
           max={4}
           onChange={this.updateHandler}
           callback={this.imagesCallback}

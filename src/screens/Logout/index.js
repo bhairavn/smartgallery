@@ -1,6 +1,6 @@
 import React, {useContext, useEffect} from 'react';
 import {ActivityIndicator} from 'react-native';
-import logoutUser from '../../context/actions/auth/logoutUser';
+import logoutUser from '../../context/actions/logoutUser';
 import {GlobalContext} from '../../context/Provider';
 
 const Logout = () => {
@@ -8,6 +8,7 @@ const Logout = () => {
 
   useEffect(() => {
     logoutUser()(authDispatch);
+    console.log(authDispatch);
   }, []);
 
   return <ActivityIndicator />;

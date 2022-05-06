@@ -39,6 +39,7 @@ import {
           loading: false,
           data: null,
           isLoggedIn: false,
+          error: null,
         };
   
       case REGISTER_FAIL:

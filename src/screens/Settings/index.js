@@ -1,13 +1,14 @@
-import { Text, View } from "react-native";
+import { Text, View,Alert, } from "react-native";
 import { useState } from "react";
 import React from "react";
 import CustomButton from "../../components/common/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Modal from "react-native-modal";
-import { ImageBrowser } from "expo-image-picker-multiple";
 import { StyleSheet } from "react-native";
-import { launchImageLibraryAsync } from "expo-image-picker-multiple";
 import ImageBrowserScreen from "./ImageBrowserScreen";
+import Logout from "../../screens/Logout/index";
+import logoutUser from "../../context/actions/logoutUser";
+import { GlobalContext } from "../../context/Provider";
+import { useContext } from "react";
 
 const Settings = () => {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -15,6 +16,12 @@ const Settings = () => {
   _getHeaderLoader = () => (
     <ActivityIndicator size='small' color={'#ffffff'}/>
   );
+
+  const {
+    authDispatch,
+    authState: { error, loading},
+  } = useContext(GlobalContext);
+
 
   const imagesCallback = (callback) => {
     console.log("hello2");
@@ -105,63 +112,64 @@ const Settings = () => {
   };
 
   const onSubmitRL = () => {
-    console.log("hello");
+    console.log("helloRL");
     setModalVisible(!isModalVisible);
   };
+  const onSubmitGL = () => {
+    console.log("helloGL");
+  };
+  const onSubmitReset = () => {
+    console.log("helloReset");
+  };
+  const onSubmitLogout = () => {
+    console.log("Logout");
+    // navigation.toggleDrawer();
+    Alert.alert('Logout!', 'Are you sure you want to logout?', [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+      },
 
+      {
+        text: 'OK',
+        onPress: () => {
+          logoutUser()(authDispatch);
+        },
+      },
+    ]);
+  };
 
   return (
-    <SafeAreaView>
-      <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
-        ADD Images into the Database
+    <SafeAreaView style={{flex: 1}}>
+      <Text style={{ paddingTop: 7, paddingHorizontal: 20 }}>
+        Load Library
       </Text>
       <View style={{ paddingHorizontal: 20 }}>
         <CustomButton onPress={onSubmitRL} primary title="Load Library" />
       </View>
 
-      <Modal isVisible={isModalVisible}>
-        <View style={{ flex: 1,paddingHorizontal: 25 }}>
-           {/* <ImageBrowser
-            max={10000}
-            onChange={updateHandler}
-        callback={(callback) => {
-console.log(callback);
-        }}
-        renderSelectedComponent={renderSelectedComponent}
-        // emptyStayComponent={emptyStayComponent}
-          /> */}
- {/* <ImageBrowser
-          max={4}
-          onChange={updateHandler}
-          callback={imagesCallback}
-          renderSelectedComponent={renderSelectedComponent}
-          emptyStayComponent={emptyStayComponent}
-        /> */}
+      <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
+        Generate Labels
+      </Text>
+      <View style={{ paddingHorizontal: 20 }}>
+        <CustomButton onPress={onSubmitGL} primary title="Generate Labels" />
+      </View>
 
-        <ImageBrowserScreen/>
-
-
-          <View style={{ flexDirection: "row" }}>
-            <View style={{flex:1, paddingHorizontal: 20 }}>
-              <CustomButton title="Hide modal" primary onPress={toggleModal} />
-            </View>
-            <View style={{flex:1, paddingHorizontal: 20 }}>
-              <CustomButton
-                title="Done"
-                primary
-                // onPress={}
-              />
-            </View>
-          </View>
-        </View>
-        <View style={styles.divider} />
-      {chosenAssets.length > 0 ?
-        chosenAssets.map((asset) => <AssetInfo assetInfo={asset} />)
-      : <Text style={styles.textNoSelection}>No images selected</Text>}
-      <View style={styles.screenBottomPadding} />
-
-      </Modal>
+      <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
+        Reset Database
+      </Text>
+      <View style={{ paddingHorizontal: 20 }}>
+        <CustomButton onPress={onSubmitReset} primary title="Reset Database" />
+      </View>
        
+      <View style={styles.bottom}>
+          <CustomButton
+            style={styles.button}
+            onPress={onSubmitLogout}
+            title="Logout" 
+            primary
+            />
+        </View>
     </SafeAreaView>
   );
 };
@@ -221,5 +229,11 @@ const styles = StyleSheet.create({
       paddingTop: 20,
       textAlign: 'center',
       width: '100%',
+    },
+    bottom: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      marginBottom: 10,
+      paddingHorizontal: 20
     },
   });

@@ -120,7 +120,6 @@ export default class ImageGallery extends React.Component {
   }
 
   prepareCallback() {
-    console.log("in");
     const { loadCompleteMetadata } = this.props;
     const { selected, photos } = this.state;
     const selectedPhotos = selected.map(i => photos[i]);
