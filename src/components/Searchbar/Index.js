@@ -10,8 +10,7 @@ console.log(searchQuery);
     <Searchbar
       placeholder="Search"
       onChangeText={onChangeSearch}
-      value={searchQuery}
-      
+      value={searchQuery} 
     />
   );
 };

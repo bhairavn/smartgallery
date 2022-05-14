@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'rea
 import * as ImageManipulator from 'expo-image-manipulator';
 import {ImageBrowser} from 'expo-image-picker-multiple';
 import ImageGallery from './ImageGallery';
+import SearchbarComponent from '../../components/Searchbar/Index';
 
 export default class ImageBrowserScreen extends Component {
   _getHeaderLoader = () => (
@@ -61,7 +62,6 @@ export default class ImageBrowserScreen extends Component {
 
   render() {
     const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
-
     return (
       <View style={[styles.flex, styles.container]}>
         

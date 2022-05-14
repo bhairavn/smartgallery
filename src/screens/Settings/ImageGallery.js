@@ -13,11 +13,11 @@ import * as MediaLibrary from 'expo-media-library'
 import ImageTile from './ImageTile'
 
 const {width} = Dimensions.get('window');
-
+export var urisdata=null;
 export default class ImageGallery extends React.Component {
   static defaultProps = {
     loadCompleteMetadata: false,
-    loadCount: 50,
+    loadCount: 150,
     emptyStayComponent: null,
     preloaderComponent: <ActivityIndicator size='large'/>,
     mediaType: [MediaLibrary.MediaType.photo]
@@ -103,12 +103,16 @@ export default class ImageGallery extends React.Component {
   processPhotos = (data) => {
     if (data.totalCount) {
       if (this.state.after === data.endCursor) return;
+      console.log(data.totalCount);
       const uris = data.assets;
+      urisdata = data;
       this.setState({
         photos: [...this.state.photos, ...uris],
         after: data.endCursor,
         hasNextPage: data.hasNextPage
       });
+      // console.log(this.state.photos);
+
     } else {
       this.setState({isEmpty: true});
     }

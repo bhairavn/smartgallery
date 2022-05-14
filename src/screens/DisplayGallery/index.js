@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
+  Dimensions,
   Text,
   View,
   TouchableOpacity,
@@ -9,101 +10,114 @@ import {
   Modal,
   Image,
 } from 'react-native';
-import { ImageBrowser } from 'expo-image-picker-multiple';
-import SearchbarComponent from '../../components/Searchbar/Index';
 import ImageGallery from '../Settings/ImageGallery';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Searchbar } from 'react-native-paper';
+import CustomButton from '../../components/common/CustomButton';
+import ImageTile from '../Settings/ImageTile';
+import { ImageBackground } from 'react-native';
+import { Button } from 'react-native';
+const {width} = Dimensions.get('window');
 
 const DisplayGallery = () => {
-  const [imageuri, setImageuri] = useState('');
-  const [
-    modalVisibleStatus, setModalVisibleStatus
-  ] = useState(false);
-  const [dataSource, setDataSource] = useState([]);
-  useEffect(() => {
-    let items = Array.apply(null, Array(120)).map((v, i) => {
-      return {
-        id: i,
-        src: 'https://unsplash.it/400/400?image=' + (i + 1)
-      };
-    });
-    setDataSource(items);
-  }, []);
+  const [farr, setarr] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [Filter, setFilter] = useState(true);
 
-  const showModalFunction = (visible, imageURL) => {
-    setImageuri(imageURL);
-    setModalVisibleStatus(visible);
-  };
+  const onChangeSearch = query => setSearchQuery(query);
+
+  const onSearch = async() => {
+    // console.log(searchQuery);
+  try {
+    const value = await AsyncStorage.getItem("PhotosData");
+    if (value !== null) {
+        console.log("Loaded from async");
+        console.log(searchQuery);
+        // console.log(value);
+        pdata=JSON.parse(value);
+        // console.log(pdata.length);
+        var imageuri = []
+        for (var i=0; i <pdata.length; i++) {
+          
+          // if (pdata[i].Label == searchQuery ){
+            if(pdata[i].Label.toLowerCase().includes(searchQuery.toLowerCase())){
+          // console.log((pdata[i]));
+          console.log("infor");
+          imageuri = [...imageuri, pdata[i]];
+          }
+       }
+    }
+      // console.log(imageuri.length);
+      setarr(imageuri);
+      setFilter(false);
+      // return imageuri;
+  }
+  catch (error) {
+    // Error retrieving data
+    console.log(error);
+  }
+    }
+  if (!searchQuery){
+    imageuri=[];
+    // setFilter(true);
+  }
+  console.log("*")
+  console.log(farr);
 
 
-
-  
+  renderImageTile = ({item, index}) => {
+    return (
+      <ImageTile
+        item={item}
+        index={index}
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-     {/* <SearchbarComponent/>
-       {modalVisibleStatus ? (
-        <Modal
-          transparent={false}
-          animationType={'fade'}
-          visible={modalVisibleStatus}
-          onRequestClose={() => {
-            showModalFunction(!modalVisibleStatus, '');
-          }}>
-          <View style={styles.modelStyle}>
-            <Image
-              style={styles.fullImageStyle}
-              source={{uri: imageuri}}
-              resizeMode={
-                Image.resizeMode.contain
-              }
-            />
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.closeButtonStyle}
-              onPress={() => {
-                showModalFunction(!modalVisibleStatus, '');
-              }}>
-              <Image
-                source={{
-                  uri:
-                    'https://raw.githubusercontent.com/AboutReact/sampleresource/master/close.png',
-                }}
-                style={{width: 35, height: 35}}
-              />
-            </TouchableOpacity>
-          </View>
-        </Modal>
-      ) : (
-        <View style={styles.container}>
-          <FlatList
-            data={dataSource}
-            renderItem={({item}) => (
-              <View style={styles.imageContainerStyle}>
-                <View
-                  key={item.id}
-                  style={{flex: 1}}
-                  onPress={() => {
-                    showModalFunction(true, item.src);
-                  }}>
-                  <Image
-                    style={styles.imageStyle}
-                    source={{
-                      uri: item.src,
-                    }}
-                  />
-                </View>
-              </View>
-            )}
-            numColumns={3}
-            keyExtractor={(item, index) => index.toString()}
-          />
-        </View>
-      )}
-        */}
-       <ImageGallery  onChange={()=>{}}
-      callback={()=>{}}
-      />
-   </SafeAreaView>
+      <View style={{flexDirection: "row" , justifyContent: 'space-evenly'}}>
+      <Searchbar
+      style={{width:3.3*width/4}}
+      placeholder="Search"
+      onChangeText={onChangeSearch}
+      onIconPress={onSearch}
+      value={searchQuery} 
+    />
+    <CustomButton style={{width:width*0.7/4,backgroundColor:'grey'}} onPress={()=>{setFilter(true)
+      , setSearchQuery('')
+      }} primary title="Reset"/>
+    </View>
+    {Filter ? (
+    <ImageGallery  
+    max={1}
+    onChange={()=>{}}
+   callback={()=>{}}
+   />):(
+
+<View style={styles.container}>
+
+<FlatList
+  data={farr}
+  keyExtractor={item => item.id}
+  numColumns={4}
+  renderItem={({item}) => 
+   (
+  <View style={{ position: 'relative' }}>
+  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+    <ImageBackground
+      style={{ width: width / 4, height: width / 4 }}
+      source={{uri : item.uri}} >
+    </ImageBackground>
+  </View>
+  </View> 
+  )
+  }
+  />
+</View>
+)
+}
+      </SafeAreaView>
   );
 };
 export default DisplayGallery;

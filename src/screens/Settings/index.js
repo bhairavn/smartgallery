@@ -1,126 +1,100 @@
-import { Text, View,Alert, } from "react-native";
-import { useState } from "react";
+import { Text, View,Alert,Switch,StyleSheet } from "react-native";
+import { useState,useContext } from "react";
 import React from "react";
 import CustomButton from "../../components/common/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StyleSheet } from "react-native";
-import ImageBrowserScreen from "./ImageBrowserScreen";
-import Logout from "../../screens/Logout/index";
 import logoutUser from "../../context/actions/logoutUser";
 import { GlobalContext } from "../../context/Provider";
-import { useContext } from "react";
-
-const Settings = () => {
+import { HOME_NAVIGATOR } from '../../constants/routeNames';
+import { urisdata } from "./ImageGallery";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const Settings = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
-  const [chosenAssets, setChosenAssets] = useState([]);
-  _getHeaderLoader = () => (
-    <ActivityIndicator size='small' color={'#ffffff'}/>
-  );
+  const [Loading, setLoading] = useState(false);
 
   const {
     authDispatch,
     authState: { error, loading},
   } = useContext(GlobalContext);
 
-
-  const imagesCallback = (callback) => {
-    console.log("hello2");
-
-    callback.then(async (photos) => {
-      console.log(photos);
-
-      const cPhotos = [];
-      for(let photo of photos) {
-        const pPhoto = await _processImageAsync(photo.uri);
-        cPhotos.push({
-          uri: pPhoto.uri,
-          name: photo.filename,
-          type: 'image/jpg'
-        })
+  const onSubmitLL = () => {
+    console.log("");
+    
+    console.log("***helloLL");
+    setLoading(!Loading);
+    onSubmitReset();
+    AsyncStorage.setItem("PhotosData",JSON.stringify(urisdata.assets), (err)=> {
+      if(err){
+          console.log("an error");
+          throw err;
       }
-    })
-    .catch((e) => console.log(e));
-  };
-
-  async function _processImageAsync(uri) {
-    const file = await ImageManipulator.manipulateAsync(
-      uri,
-      [{resize: { width: 1000 }}],
-      { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
-    );
-    return file;
-  };
-
-  // _renderDoneButton = (count, onSubmit) => {
-  //   if (!count) return null;
-  //   return <TouchableOpacity title={'Done'} onPress={onSubmit}>
-  //     <Text onPress={onSubmit}>Done</Text>
-  //   </TouchableOpacity>
-  // }
-
-
-  // updateHandler = (count, onSubmit) => {
-  //   callback.setOptions({
-  //     title: `Selected ${count} files`,
-  //     headerRight: () => _renderDoneButton(count, onSubmit)
-  //   });
-  // };
-
-  const updateHandler = (count, onSubmit) => {
-    console.log(callback.then(async (photos)))
-    console.log(`count: ${count}  ::  onSubmit: ${JSON.stringify(onSubmit)}`);
-  };
-  
-  const emptyStayComponent = <Text style={styles.emptyStay}>Empty =(</Text>;
-  const noCameraPermissionComponent = (
-    <Text style={styles.emptyStay}>No access to camera</Text>
-  );
-
-  const NameValueRow = ({ name, value }) => {
-    return (
-      <View style={styles.nameValueContainer}>
-        <Text style={styles.textName}>{name}: </Text>
-        <Text style={styles.textValue}>{value}</Text>
-      </View>
-    );
-  };
-
-  renderSelectedComponent = (number) => (
-    <View style={styles.countBadge}>
-      <Text style={styles.countBadgeText}>{number}</Text>
-    </View>
-  );
-
-
-  const AssetInfo = ({ assetInfo }) => {
-    //
-    // table of properties: https://docs.expo.io/versions/v39.0.0/sdk/media-library/#asset
-    //
-    return (
-      <View key={`${assetInfo.id}`} style={{ borderBottomWidth: 1 }}>
-        <NameValueRow name={'filename'} value={assetInfo.filename} />
-        <NameValueRow name={'mediaType'} value={assetInfo.mediaType} />
-        <NameValueRow name={'width'} value={assetInfo.width} />
-        <NameValueRow name={'height'} value={assetInfo.height} />
-      </View>
-    );
+      console.log("success");
+  }).catch((err)=> {
+      console.log("error is: " + err);
+  });
+    setTimeout(() => {setLoading(false);  navigation.navigate(HOME_NAVIGATOR);}, 100);
   };
 
 
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-
-  const onSubmitRL = () => {
-    console.log("helloRL");
-    setModalVisible(!isModalVisible);
-  };
-  const onSubmitGL = () => {
+  const onSubmitGL = async() => {
     console.log("helloGL");
+    try {
+      const value = await AsyncStorage.getItem("PhotosData");
+      if (value !== null) {
+          console.log("Loaded from async");
+          pdata=JSON.parse(value);
+          for (var i=0; i < pdata.length; i++) {
+            pdata[i].Label = "Generated";
+         }
+      }
+      onSubmitReset();
+      console.log(pdata.length);
+      AsyncStorage.setItem("PhotosData",JSON.stringify(pdata), (err) => {
+        if(err){
+            console.log("an error");
+            throw err;
+        }
+        console.log("success");
+    }).catch((err)=> {
+        console.log("error is: " + err);
+    });
+  } catch (error) {
+      // Error retrieving data
+  }
   };
+
+
   const onSubmitReset = () => {
     console.log("helloReset");
+    // console.log({urisdata});
+    AsyncStorage.removeItem("PhotosData", (err)=> {
+      if(err){
+          console.log("an error");
+          throw err;
+      }
+      console.log("successful reset");
+  }).catch((err)=> {
+      console.log("error is: " + err);
+  });
   };
+
+  const onSubmitD = async() => {
+    console.log("helloD");
+    // console.log({urisdata});
+    try {
+      const value = await AsyncStorage.getItem("PhotosData");
+      if (value !== null) {
+          console.log("Loaded from async");
+          console.log(value);
+          pdata=JSON.parse(value);
+          console.log(pdata.length);
+      }
+  }
+  catch (error) {
+    // Error retrieving data
+}
+}
+
   const onSubmitLogout = () => {
     console.log("Logout");
     // navigation.toggleDrawer();
@@ -139,13 +113,16 @@ const Settings = () => {
     ]);
   };
 
+  const [isEnabled, setIsEnabled] = useState(false);
+  const toggleSwitch = () => {setIsEnabled(previousState => !previousState);};
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <Text style={{ paddingTop: 7, paddingHorizontal: 20 }}>
         Load Library
       </Text>
       <View style={{ paddingHorizontal: 20 }}>
-        <CustomButton onPress={onSubmitRL} primary title="Load Library" />
+        <CustomButton onPress={onSubmitLL} primary loading={Loading} title="Load Library" />
       </View>
 
       <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
@@ -161,6 +138,26 @@ const Settings = () => {
       <View style={{ paddingHorizontal: 20 }}>
         <CustomButton onPress={onSubmitReset} primary title="Reset Database" />
       </View>
+      <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
+        display Database
+      </Text>
+      <View style={{ paddingHorizontal: 20 }}>
+        <CustomButton onPress={onSubmitD} primary title="Display Database" />
+      </View>
+
+      <View style={{ paddingTop: 20, paddingHorizontal: 20 , flexDirection: 'row',alignItems:'center' }}>
+      <Text style={{ paddingRight: 20 }}>
+        Dark Mode
+      </Text>
+      <Switch
+        trackColor={{ false: "#767577", true: "#81b0ff" }}
+        thumbColor={isEnabled ? "#f5dd4b" : "#f4f3f4"}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={toggleSwitch}
+        value={isEnabled}
+      />
+      </View>
+
        
       <View style={styles.bottom}>
           <CustomButton
