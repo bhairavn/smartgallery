@@ -5,6 +5,7 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
+import { Text } from 'react-native';
 
 const {width} = Dimensions.get('window');
 

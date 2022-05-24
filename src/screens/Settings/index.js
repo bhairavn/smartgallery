@@ -1,4 +1,4 @@
-import { Text, View,Alert,Switch,StyleSheet } from "react-native";
+import { Text, View,Alert,Switch,StyleSheet,Image } from "react-native";
 import { useState,useContext } from "react";
 import React from "react";
 import CustomButton from "../../components/common/CustomButton";
@@ -8,18 +8,81 @@ import { GlobalContext } from "../../context/Provider";
 import { HOME_NAVIGATOR } from '../../constants/routeNames';
 import { urisdata } from "./ImageGallery";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FS from "expo-file-system";
+// import * as RNFS from 'react-native-fs';
+import * as MediaLibrary from 'expo-media-library';
+import axios from 'axios';
+
 const Settings = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
-
+  const [ur,setur]=useState("file:///var/mobile/Media/DCIM/103APPLE/IMG_3362.JPG");
   const {
     authDispatch,
     authState: { error, loading},
   } = useContext(GlobalContext);
 
+  const toServer = async (mediaFile) => {
+    // console.log("media-",mediaFile);
+    let type = mediaFile.type;
+    let schema = "http://";
+    let host = "192.168.29.196";
+    let route = "";
+    let port = "5000";
+    let url = "";
+    let content_type = "";
+    type === "image"
+      ? ((route = "/image"), (content_type = "image/jpeg"))
+      : ((route = "/video"), (content_type = "video/mp4"));
+    url = schema + host + ":" + port + route;
+    uri ="http://192.168.29.196:5000/image"
+    let response = await FS.uploadAsync(url, mediaFile.uri, {
+      headers: {
+        "content-type": content_type,
+      },
+      httpMethod: "POST",
+      uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
+    });
+    console.log(response);
+
+    console.log(response.headers);
+    console.log(response.body);
+  };
+
+  const imageUpload = (imagePath) => {
+    const imageData = new FormData()
+    imageData.append("file", {
+      uri: imagePath,
+      fileName: 'image.jpg',
+    })
+    api="http://192.168.29.196:5000/image";
+    console.log("form data", imageData)
+    console.log("\n\n\n");
+    // axios({
+    //   method: 'post',
+    //   url: api,
+    //   data: imageData,
+    // headers: {
+    //   "Content-Type": "multipart/form-data",
+    // }
+    // })
+    fetch(api, {
+      // headers: {
+      //   'Content-Type': 'multipart/form-data'
+      // },
+      method: 'POST',
+      body: imageData
+    })
+      .then(function (response) {
+        console.log("image upload successfully", response.data)
+      }).then((error) => {
+        console.log("error riased", error)
+      })
+
+  }
+
+
   const onSubmitLL = () => {
-    console.log("");
-    
     console.log("***helloLL");
     setLoading(!Loading);
     onSubmitReset();
@@ -43,12 +106,60 @@ const Settings = ({navigation}) => {
       if (value !== null) {
           console.log("Loaded from async");
           pdata=JSON.parse(value);
+          
           for (var i=0; i < pdata.length; i++) {
             pdata[i].Label = "Generated";
+            pdata[i].type="image";
+            result=pdata[i]
+            // imageUpload(result)
+            // if (result.type == "image") {
+            //   console.log("inif");
+            //   // let base64 = await uriToBase64(result.uri);
+            //   console.log("inifb");
+            //   await toServer({
+            //     type: result.type,
+            //     // base64: base64,
+            //     uri: result.uri,
+            //   });
+            // } else {
+            //   let base64 = await uriToBase64(result.uri);
+            //   await this.toServer({
+            //     type: result.type,
+            //     base64: base64,
+            //     uri: result.uri,
+            //   });
+            // }
          }
+        //  console.log(pdata[0]);
+         
+         uri=pdata[0].uri
+         
+        //  const destPath = RNFS.CachesDirectoryPath + '/MyPic.jpg';
+    // console.log(await MediaLibrary.getAssetInfoAsync(pdata[0].id))
+    // 'ph-upload' + asset.uri.substring(2);
+    
+      let uri = uri;
+      let myAssetId = uri.slice(5);
+      let returnedAssetInfo = await MediaLibrary.getAssetInfoAsync(myAssetId);
+      console.log(returnedAssetInfo.localUri); // you local uri link to get the file
+      imageUpload(returnedAssetInfo.localUri);
+
+    // console.log(RNFS.copyAssetsFileIOS(uri, destPath));
+    //      try {
+    //        await RNFS.copyAssetsFileIOS(uri, destPath);
+    //        console.log('destPath', destPath);
+    //        } catch (error) {console.log(error);} 
+     
+    //        navigation.navigate('SelectedPicture', {
+    //          uri: 'file://' + destPath,
+    //            }); 
+          console.log("datatatatta")
+          console.log(returnedAssetInfo);
+          // const ur=returnedAssetInfo.localUri;
+         setur(returnedAssetInfo.localUri);
       }
       onSubmitReset();
-      console.log(pdata.length);
+      
       AsyncStorage.setItem("PhotosData",JSON.stringify(pdata), (err) => {
         if(err){
             console.log("an error");
@@ -156,6 +267,10 @@ const Settings = ({navigation}) => {
         onValueChange={toggleSwitch}
         value={isEnabled}
       />
+      </View>
+      <View>
+      <Image source={{uri: ur}}style={{width: 200, height: 200}}/>
+      <Text>hello</Text>
       </View>
 
        
