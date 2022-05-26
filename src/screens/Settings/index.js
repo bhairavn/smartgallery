@@ -12,36 +12,22 @@ import * as FS from "expo-file-system";
 // import * as RNFS from 'react-native-fs';
 import * as MediaLibrary from 'expo-media-library';
 import axios from 'axios';
+import * as Progress from 'react-native-progress';
+
 
 const Settings = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
-  const [ur,setur]=useState("file:///var/mobile/Media/DCIM/103APPLE/IMG_3362.JPG");
+  const [LoadingG, setLoadingG] = useState(false);
 
+  const [pr,setpr]=useState(0.0);
+  const [generating, setgenerating] = useState(false);
+
+  
   const {
     authDispatch,
     authState: { error, loading},
   } = useContext(GlobalContext);
-
-  const toServer = async (mediaFile) => {
-    console.log("media-",Object.keys(mediaFile));
-
-    uri ="http://192.168.29.196:5000/image";
-    console.log("data3");
-    let response = await FS.uploadAsync(uri, 
-      mediaFile.uri,
-      {
-      headers: {
-        "content-type": "image/jpeg",
-      },
-      httpMethod: "POST",
-      uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
-    });
-    console.log(response);
-
-    console.log(response.headers);
-    // console.log(response.body);
-  };
 
   const imageUpload = (imagePath) => {
     const imageData = new FormData()
@@ -53,7 +39,6 @@ const Settings = ({navigation}) => {
     })
     api="http://192.168.29.196:5000/image";
     // console.log("form data", imageData)
-    console.log("\n\n\n");
     axios({
       method: 'post',
       url: api,
@@ -69,20 +54,6 @@ const Settings = ({navigation}) => {
       })
 return response.data
   }
-  const convertBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
 
   uriToBase64 = async (uri) => {
     // console.log(uri);
@@ -94,12 +65,14 @@ return response.data
 
   const onSubmitGL = async() => {
     console.log("helloGL");
+    setLoadingG(!LoadingG);
+
     try {
       const value = await AsyncStorage.getItem("PhotosData");
       if (value !== null) {
           console.log("Loaded from async");
           pdata=JSON.parse(value);
-          
+          setgenerating(!generating);
           for (var i=0; i < pdata.length; i++) {
 
             console.log(i);
@@ -120,7 +93,6 @@ return response.data
              })
              api="http://192.168.29.196:5000/image";
              // console.log("form data", imageData)
-             console.log("\n\n\n");
              await axios({
                method: 'post',
                url: api,
@@ -138,8 +110,8 @@ return response.data
                })            
             pdata[i].type="image";
           console.log(i);
+          setpr((i+1)/pdata.length)
          }        
-        //  setur(returnedAssetInfo.localUri);
       }
       onSubmitReset();
       
@@ -149,19 +121,23 @@ return response.data
             throw err;
         }
         console.log("success");
+        setgenerating(false);
+        setLoadingG(false);
+      
     }).catch((err)=> {
         console.log("error is: " + err);
     });
   } catch (error) {
       // Error retrieving data
   }
+
   };
 
   const onSubmitLL = () => {
     console.log("***helloLL");
     setLoading(!Loading);
     onSubmitReset();
-    
+
     AsyncStorage.setItem("PhotosData",JSON.stringify(urisdata.assets), (err)=> {
       if(err){
           console.log("an error");
@@ -171,7 +147,7 @@ return response.data
   }).catch((err)=> {
       console.log("error is: " + err);
   });
-    setTimeout(() => {setLoading(false);  navigation.navigate(HOME_NAVIGATOR);}, 100);
+    setTimeout(() => {setLoading(false);  navigation.navigate(HOME_NAVIGATOR);}, 2000);
   };
 
 
@@ -240,8 +216,12 @@ return response.data
         Generate Labels
       </Text>
       <View style={{ paddingHorizontal: 20 }}>
-        <CustomButton onPress={onSubmitGL} primary title="Generate Labels" />
+        <CustomButton onPress={onSubmitGL} primary loading={LoadingG} title="Generate Labels" />
       </View>
+      { generating ? 
+      (<View style={{alignItems: 'center',}}>
+      <Progress.Bar progress={pr} width={200} />
+      </View>):<></>}
 
       <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
         Reset Database
@@ -249,12 +229,12 @@ return response.data
       <View style={{ paddingHorizontal: 20 }}>
         <CustomButton onPress={onSubmitReset} primary title="Reset Database" />
       </View>
-      <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
+      {/* <Text style={{ paddingTop: 20, paddingHorizontal: 20 }}>
         display Database
-      </Text>
-      <View style={{ paddingHorizontal: 20 }}>
+      </Text> */}
+      {/* <View style={{ paddingHorizontal: 20 }}>
         <CustomButton onPress={onSubmitD} primary title="Display Database" />
-      </View>
+      </View> */}
 
       <View style={{ paddingTop: 20, paddingHorizontal: 20 , flexDirection: 'row',alignItems:'center' }}>
       <Text style={{ paddingRight: 20 }}>
