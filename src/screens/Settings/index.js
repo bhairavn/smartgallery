@@ -17,6 +17,7 @@ const Settings = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [Loading, setLoading] = useState(false);
   const [ur,setur]=useState("file:///var/mobile/Media/DCIM/103APPLE/IMG_3362.JPG");
+
   const {
     authDispatch,
     authState: { error, loading},
@@ -39,7 +40,7 @@ const Settings = ({navigation}) => {
     console.log(response);
 
     console.log(response.headers);
-    console.log(response.body);
+    // console.log(response.body);
   };
 
   const imageUpload = (imagePath) => {
@@ -51,7 +52,7 @@ const Settings = ({navigation}) => {
       fileName: 'image.jpg',
     })
     api="http://192.168.29.196:5000/image";
-    console.log("form data", imageData)
+    // console.log("form data", imageData)
     console.log("\n\n\n");
     axios({
       method: 'post',
@@ -61,20 +62,12 @@ const Settings = ({navigation}) => {
       "Content-Type": "multipart/form-data",
     }
     })
-    // fetch(api, {
-    //   // headers: {
-    //   //   'Content-Type': 'multipart/form-data'
-    //   // },
-    //   method: 'POST',
-    //   body: imageData
-    // })
       .then(function (response) {
         console.log("image upload successfully", response.data)
-        console.log("hello")
       }).then((error) => {
         console.log("error riased", error)
       })
-
+return response.data
   }
   const convertBase64 = (file) => {
     return new Promise((resolve, reject) => {
@@ -108,54 +101,45 @@ const Settings = ({navigation}) => {
           pdata=JSON.parse(value);
           
           for (var i=0; i < pdata.length; i++) {
-            pdata[i].Label = "Generated";
+
+            console.log(i);
+            uri=pdata[i].uri
+            let myAssetId = uri.slice(5);
+            let returnedAssetInfo = await MediaLibrary.getAssetInfoAsync(myAssetId);
+            console.log("data1")
+            console.log(returnedAssetInfo.localUri);
+            console.log("data2")
+             let base64 = await uriToBase64(returnedAssetInfo.localUri);
+             imagePath=base64;
+             const imageData = new FormData()
+             // imageData.append('submit', 'ok')
+             imageData.append({
+               uri: imagePath,
+               type:"image/jpg",
+               fileName: 'image.jpg',
+             })
+             api="http://192.168.29.196:5000/image";
+             // console.log("form data", imageData)
+             console.log("\n\n\n");
+             await axios({
+               method: 'post',
+               url: api,
+               data: imageData,
+             headers: {
+               "Content-Type": "multipart/form-data",
+             }
+             })
+               .then(function (response) {
+                 console.log("image upload successfully", response.data)
+                 console.log("\nlbel generated",response.data );
+                 pdata[i].Label = response.data;
+               }).then((error) => {
+                 console.log("error riased", error)
+               })            
             pdata[i].type="image";
-            result=pdata[i]
-            // let uri = uri;
-
-            // imageUpload(result)
-            // if (result.type == "image") {
-            //   console.log("inif");
-            //   // let base64 = await uriToBase64(result.uri);
-            //   console.log("inifb");
-            //   await toServer({
-            //     type: result.type,
-            //     // base64: base64,
-            //     uri: result.uri,
-            //   });
-            // } else {
-            //   let base64 = await uriToBase64(result.uri);
-            //   await this.toServer({
-            //     type: result.type,
-            //     base64: base64,
-            //     uri: result.uri,
-            //   });
-            // }
-         }
-         uri=pdata[0].uri
-         let myAssetId = uri.slice(5);
-         let returnedAssetInfo = await MediaLibrary.getAssetInfoAsync(myAssetId);
-         console.log("data1")
-         console.log(returnedAssetInfo.localUri);
-         console.log("data2")
-        //  console.log(Object.keys(returnedAssetInfo))
-        // console.log(convertBase64(returnedAssetInfo.localUri))
-        // imageUpload(convertBase64(returnedAssetInfo.localUri))
-        // imageUpload(uriToBase64(returnedAssetInfo.localUri))
-
-        //  console.log(Platform.OS === "ios" ? returnedAssetInfo.localUri.replace("file://", "") : returnedAssetInfo.localUri)
-        // toServer(returnedAssetInfo.localUri);
-          let base64 = await uriToBase64(returnedAssetInfo.localUri);
-          console.log(base64);
-        imageUpload(base64);
-
-        //  await toServer({
-        //    type: "image/jpeg",
-        //    base64: base64,
-        //    uri:returnedAssetInfo.localUri,
-        //  });
-      // imageUpload(returnedAssetInfo.localUri);
-         setur(returnedAssetInfo.localUri);
+          console.log(i);
+         }        
+        //  setur(returnedAssetInfo.localUri);
       }
       onSubmitReset();
       
@@ -177,6 +161,7 @@ const Settings = ({navigation}) => {
     console.log("***helloLL");
     setLoading(!Loading);
     onSubmitReset();
+    
     AsyncStorage.setItem("PhotosData",JSON.stringify(urisdata.assets), (err)=> {
       if(err){
           console.log("an error");
@@ -283,12 +268,10 @@ const Settings = ({navigation}) => {
         value={isEnabled}
       />
       </View>
-      <View>
+      {/* <View>
       <Image source={{uri: ur}}style={{width: 200, height: 200}}/>
       <Text>hello</Text>
-      </View>
-
-       
+      </View> */}       
       <View style={styles.bottom}>
           <CustomButton
             style={styles.button}

@@ -17,7 +17,7 @@ export var urisdata=null;
 export default class ImageGallery extends React.Component {
   static defaultProps = {
     loadCompleteMetadata: false,
-    loadCount: 150,
+    loadCount: 100,
     emptyStayComponent: null,
     preloaderComponent: <ActivityIndicator size='large'/>,
     mediaType: [MediaLibrary.MediaType.photo]

@@ -40,11 +40,14 @@ const DisplayGallery = () => {
         for (var i=0; i <pdata.length; i++) {
           
           // if (pdata[i].Label == searchQuery ){
+            if (typeof pdata[i].Label!== 'undefined')
+            { 
             if(pdata[i].Label.toLowerCase().includes(searchQuery.toLowerCase())){
           // console.log((pdata[i]));
           console.log("infor");
           imageuri = [...imageuri, pdata[i]];
           }
+        }
        }
     }
       // console.log(imageuri.length);
