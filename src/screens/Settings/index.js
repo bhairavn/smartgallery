@@ -23,22 +23,15 @@ const Settings = ({navigation}) => {
   } = useContext(GlobalContext);
 
   const toServer = async (mediaFile) => {
-    // console.log("media-",mediaFile);
-    let type = mediaFile.type;
-    let schema = "http://";
-    let host = "192.168.29.196";
-    let route = "";
-    let port = "5000";
-    let url = "";
-    let content_type = "";
-    type === "image"
-      ? ((route = "/image"), (content_type = "image/jpeg"))
-      : ((route = "/video"), (content_type = "video/mp4"));
-    url = schema + host + ":" + port + route;
-    uri ="http://192.168.29.196:5000/image"
-    let response = await FS.uploadAsync(url, mediaFile.uri, {
+    console.log("media-",Object.keys(mediaFile));
+
+    uri ="http://192.168.29.196:5000/image";
+    console.log("data3");
+    let response = await FS.uploadAsync(uri, 
+      mediaFile.uri,
+      {
       headers: {
-        "content-type": content_type,
+        "content-type": "image/jpeg",
       },
       httpMethod: "POST",
       uploadType: FS.FileSystemUploadType.BINARY_CONTENT,
@@ -51,53 +44,60 @@ const Settings = ({navigation}) => {
 
   const imageUpload = (imagePath) => {
     const imageData = new FormData()
-    imageData.append("file", {
+    // imageData.append('submit', 'ok')
+    imageData.append({
       uri: imagePath,
+      type:"image/jpg",
       fileName: 'image.jpg',
     })
     api="http://192.168.29.196:5000/image";
     console.log("form data", imageData)
     console.log("\n\n\n");
-    // axios({
-    //   method: 'post',
-    //   url: api,
-    //   data: imageData,
-    // headers: {
-    //   "Content-Type": "multipart/form-data",
-    // }
-    // })
-    fetch(api, {
-      // headers: {
-      //   'Content-Type': 'multipart/form-data'
-      // },
-      method: 'POST',
-      body: imageData
+    axios({
+      method: 'post',
+      url: api,
+      data: imageData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    }
     })
+    // fetch(api, {
+    //   // headers: {
+    //   //   'Content-Type': 'multipart/form-data'
+    //   // },
+    //   method: 'POST',
+    //   body: imageData
+    // })
       .then(function (response) {
         console.log("image upload successfully", response.data)
+        console.log("hello")
       }).then((error) => {
         console.log("error riased", error)
       })
 
   }
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
 
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
 
-  const onSubmitLL = () => {
-    console.log("***helloLL");
-    setLoading(!Loading);
-    onSubmitReset();
-    AsyncStorage.setItem("PhotosData",JSON.stringify(urisdata.assets), (err)=> {
-      if(err){
-          console.log("an error");
-          throw err;
-      }
-      console.log("success");
-  }).catch((err)=> {
-      console.log("error is: " + err);
-  });
-    setTimeout(() => {setLoading(false);  navigation.navigate(HOME_NAVIGATOR);}, 100);
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
   };
 
+  uriToBase64 = async (uri) => {
+    // console.log(uri);
+    let base64 = await FS.readAsStringAsync(uri, {
+      encoding: FS.EncodingType.Base64,
+    });
+    return base64;
+  };
 
   const onSubmitGL = async() => {
     console.log("helloGL");
@@ -111,6 +111,8 @@ const Settings = ({navigation}) => {
             pdata[i].Label = "Generated";
             pdata[i].type="image";
             result=pdata[i]
+            // let uri = uri;
+
             // imageUpload(result)
             // if (result.type == "image") {
             //   console.log("inif");
@@ -130,32 +132,29 @@ const Settings = ({navigation}) => {
             //   });
             // }
          }
-        //  console.log(pdata[0]);
-         
          uri=pdata[0].uri
-         
-        //  const destPath = RNFS.CachesDirectoryPath + '/MyPic.jpg';
-    // console.log(await MediaLibrary.getAssetInfoAsync(pdata[0].id))
-    // 'ph-upload' + asset.uri.substring(2);
-    
-      let uri = uri;
-      let myAssetId = uri.slice(5);
-      let returnedAssetInfo = await MediaLibrary.getAssetInfoAsync(myAssetId);
-      console.log(returnedAssetInfo.localUri); // you local uri link to get the file
-      imageUpload(returnedAssetInfo.localUri);
+         let myAssetId = uri.slice(5);
+         let returnedAssetInfo = await MediaLibrary.getAssetInfoAsync(myAssetId);
+         console.log("data1")
+         console.log(returnedAssetInfo.localUri);
+         console.log("data2")
+        //  console.log(Object.keys(returnedAssetInfo))
+        // console.log(convertBase64(returnedAssetInfo.localUri))
+        // imageUpload(convertBase64(returnedAssetInfo.localUri))
+        // imageUpload(uriToBase64(returnedAssetInfo.localUri))
 
-    // console.log(RNFS.copyAssetsFileIOS(uri, destPath));
-    //      try {
-    //        await RNFS.copyAssetsFileIOS(uri, destPath);
-    //        console.log('destPath', destPath);
-    //        } catch (error) {console.log(error);} 
-     
-    //        navigation.navigate('SelectedPicture', {
-    //          uri: 'file://' + destPath,
-    //            }); 
-          console.log("datatatatta")
-          console.log(returnedAssetInfo);
-          // const ur=returnedAssetInfo.localUri;
+        //  console.log(Platform.OS === "ios" ? returnedAssetInfo.localUri.replace("file://", "") : returnedAssetInfo.localUri)
+        // toServer(returnedAssetInfo.localUri);
+          let base64 = await uriToBase64(returnedAssetInfo.localUri);
+          console.log(base64);
+        imageUpload(base64);
+
+        //  await toServer({
+        //    type: "image/jpeg",
+        //    base64: base64,
+        //    uri:returnedAssetInfo.localUri,
+        //  });
+      // imageUpload(returnedAssetInfo.localUri);
          setur(returnedAssetInfo.localUri);
       }
       onSubmitReset();
@@ -172,6 +171,22 @@ const Settings = ({navigation}) => {
   } catch (error) {
       // Error retrieving data
   }
+  };
+
+  const onSubmitLL = () => {
+    console.log("***helloLL");
+    setLoading(!Loading);
+    onSubmitReset();
+    AsyncStorage.setItem("PhotosData",JSON.stringify(urisdata.assets), (err)=> {
+      if(err){
+          console.log("an error");
+          throw err;
+      }
+      console.log("success");
+  }).catch((err)=> {
+      console.log("error is: " + err);
+  });
+    setTimeout(() => {setLoading(false);  navigation.navigate(HOME_NAVIGATOR);}, 100);
   };
 
 
