@@ -66,7 +66,7 @@ return response.data
   const onSubmitGL = async() => {
     console.log("helloGL");
     setLoadingG(!LoadingG);
-
+    const promises = [];
     try {
       const value = await AsyncStorage.getItem("PhotosData");
       if (value !== null) {
@@ -91,7 +91,10 @@ return response.data
                type:"image/jpg",
                fileName: 'image.jpg',
              })
-             api="http://192.168.29.196:5000/image";
+             api="http://192.168.110.223:5000/image";
+             
+            //  api="http://172.20.10.5:19000/image";
+
              // console.log("form data", imageData)
              await axios({
                method: 'post',
@@ -104,12 +107,15 @@ return response.data
                .then(function (response) {
                  console.log("image upload successfully", response.data)
                  console.log("\nlbel generated",response.data );
+    setInterval(() => {if(response != "undefined") {console.log("hello");clearInterval; } }, 5000);
+console.log("\n\n\n\nhello")
                  pdata[i].Label = response.data;
                }).then((error) => {
                  console.log("error riased", error)
                })            
             pdata[i].type="image";
-          console.log(i);
+
+          console.log(pdata[i]);
           setpr((i+1)/pdata.length)
          }        
       }

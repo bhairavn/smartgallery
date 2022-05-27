@@ -42,7 +42,7 @@ const DisplayGallery = () => {
           // if (pdata[i].Label == searchQuery ){
             if (typeof pdata[i].Label!== 'undefined')
             { 
-            if(pdata[i].Label.toLowerCase().includes(searchQuery.toLowerCase())){
+            if(pdata[i].Label.toLowerCase().match(searchQuery.toLowerCase())){
           // console.log((pdata[i]));
           console.log("infor");
           imageuri = [...imageuri, pdata[i]];
